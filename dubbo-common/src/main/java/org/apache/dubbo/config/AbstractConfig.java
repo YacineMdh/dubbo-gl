@@ -81,6 +81,9 @@ public abstract class AbstractConfig implements Serializable {
     protected static final ErrorTypeAwareLogger logger = LoggerFactory.getErrorTypeAwareLogger(AbstractConfig.class);
     private static final long serialVersionUID = 4267533505537413570L;
 
+    private static final int GET_LENGTH = 3;
+    private static final int IS_LENGTH = 2;
+
     /**
      * tag name cache, speed up get tag name frequently
      */
@@ -283,12 +286,12 @@ public abstract class AbstractConfig implements Serializable {
     }
 
     private static String calculatePropertyFromGetter(String name) {
-        int i = name.startsWith("get") ? 3 : 2;
+        int i = name.startsWith("get") ? AbstractConfig.GET_LENGTH : AbstractConfig.IS_LENGTH;
         return StringUtils.camelToSplitName(name.substring(i, i + 1).toLowerCase() + name.substring(i + 1), ".");
     }
 
     private static String calculateAttributeFromGetter(String getter) {
-        int i = getter.startsWith("get") ? 3 : 2;
+        int i = getter.startsWith("get") ? AbstractConfig.GET_LENGTH: AbstractConfig.IS_LENGTH;
         return getter.substring(i, i + 1).toLowerCase() + getter.substring(i + 1);
     }
 
