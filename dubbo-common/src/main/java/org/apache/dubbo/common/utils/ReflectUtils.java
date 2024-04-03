@@ -1063,7 +1063,21 @@ public final class ReflectUtils {
     }
     
 
- 
+    public static Object defaultReturn(Method m) {
+        if (m.getReturnType().isPrimitive()) {
+            return primitiveDefaults.get(m.getReturnType());
+        } else {
+            return null;
+        }
+    }
+
+    public static Object defaultReturn(Class<?> classType) {
+        if (classType != null && classType.isPrimitive()) {
+            return primitiveDefaults.get(classType);
+        } else {
+            return null;
+        }
+    }
 
     public static boolean isBeanPropertyReadMethod(Method method) {
         return method != null
