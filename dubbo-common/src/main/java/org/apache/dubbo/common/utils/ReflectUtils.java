@@ -991,104 +991,79 @@ public final class ReflectUtils {
     public static Object getEmptyObject(Class<?> returnType) {
         return getEmptyObject(returnType, new HashMap<>(), 0);
     }
-
+    
     private static Object getEmptyObject(Class<?> returnType, Map<Class<?>, Object> emptyInstances, int level) {
-        if (level > 2) {
+        if (level > 2 || returnType == null) {
             return null;
         }
-        if (returnType == null) {
-            return null;
-        }
-        if (returnType == boolean.class || returnType == Boolean.class) {
-            return false;
-        }
-        if (returnType == char.class || returnType == Character.class) {
-            return '\0';
-        }
-        if (returnType == byte.class || returnType == Byte.class) {
-            return (byte) 0;
-        }
-        if (returnType == short.class || returnType == Short.class) {
-            return (short) 0;
-        }
-        if (returnType == int.class || returnType == Integer.class) {
-            return 0;
-        }
-        if (returnType == long.class || returnType == Long.class) {
-            return 0L;
-        }
-        if (returnType == float.class || returnType == Float.class) {
-            return 0F;
-        }
-        if (returnType == double.class || returnType == Double.class) {
-            return 0D;
+        if (isPrimitiveType(returnType)) {
+            return getDefaultValueForPrimitive(returnType);
         }
         if (returnType.isArray()) {
             return Array.newInstance(returnType.getComponentType(), 0);
         }
-        if (returnType.isAssignableFrom(ArrayList.class)) {
+        if (isCollectionType(returnType)) {
+            return createEmptyCollection(returnType);
+        }
+        if (String.class.equals(returnType) || returnType.isInterface()) {
+            return null;
+        }
+        return createObjectInstance(returnType, emptyInstances, level);
+    }
+    
+    private static boolean isPrimitiveType(Class<?> type) {
+        return type.isPrimitive() ||
+               type == Boolean.class || type == Character.class ||
+               type == Byte.class || type == Short.class || type == Integer.class || type == Long.class ||
+               type == Float.class || type == Double.class;
+    }
+    
+    private static Object getDefaultValueForPrimitive(Class<?> type) {
+        if (type == boolean.class || type == Boolean.class) {
+            return false;
+        } else if (type == char.class || type == Character.class) {
+            return '\0';
+        } else if (type == byte.class || type == Byte.class || type == short.class || type == Short.class ||
+                   type == int.class || type == Integer.class || type == long.class || type == Long.class) {
+            return 0;
+        } else {
+            return 0D;
+        }
+    }
+    
+    private static boolean isCollectionType(Class<?> type) {
+        return Collection.class.isAssignableFrom(type);
+    }
+    
+    private static Object createEmptyCollection(Class<?> type) {
+        if (ArrayList.class.isAssignableFrom(type)) {
             return new ArrayList<>(0);
-        }
-        if (returnType.isAssignableFrom(HashSet.class)) {
+        } else if (HashSet.class.isAssignableFrom(type)) {
             return new HashSet<>(0);
-        }
-        if (returnType.isAssignableFrom(HashMap.class)) {
+        } else if (HashMap.class.isAssignableFrom(type)) {
             return new HashMap<>(0);
-        }
-        if (String.class.equals(returnType)) {
-            return "";
-        }
-        if (returnType.isInterface()) {
+        } else {
             return null;
         }
-
+    }
+    
+    private static Object createObjectInstance(Class<?> returnType, Map<Class<?>, Object> emptyInstances, int level) {
         try {
-            Object value = emptyInstances.get(returnType);
-            if (value == null) {
-                value = returnType.getDeclaredConstructor().newInstance();
-                emptyInstances.put(returnType, value);
-            }
-            Class<?> cls = value.getClass();
-            while (cls != null && cls != Object.class) {
-                Field[] fields = cls.getDeclaredFields();
-                for (Field field : fields) {
-                    if (field.isSynthetic()) {
-                        continue;
-                    }
-                    Object property = getEmptyObject(field.getType(), emptyInstances, level + 1);
-                    if (property != null) {
-                        try {
-                            if (!field.isAccessible()) {
-                                field.setAccessible(true);
-                            }
-                            field.set(value, property);
-                        } catch (Throwable ignored) {
-                        }
-                    }
+            Object value = emptyInstances.computeIfAbsent(returnType, k -> {
+                try {
+                    return returnType.getDeclaredConstructor().newInstance();
+                } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException ignored) {
+                    return null;
                 }
-                cls = cls.getSuperclass();
-            }
+            });
             return value;
-        } catch (Throwable e) {
+        } catch (Throwable ignored) {
             return null;
         }
     }
+    
 
-    public static Object defaultReturn(Method m) {
-        if (m.getReturnType().isPrimitive()) {
-            return primitiveDefaults.get(m.getReturnType());
-        } else {
-            return null;
-        }
-    }
-
-    public static Object defaultReturn(Class<?> classType) {
-        if (classType != null && classType.isPrimitive()) {
-            return primitiveDefaults.get(classType);
-        } else {
-            return null;
-        }
-    }
+ 
 
     public static boolean isBeanPropertyReadMethod(Method method) {
         return method != null
