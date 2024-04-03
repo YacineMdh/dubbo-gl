@@ -437,14 +437,6 @@ public class DefaultExecutorRepository implements ExecutorRepository, ExtensionA
         data.clear();
     }
 
-    private void shutdownExecutorService(ExecutorService executorService, String name) {
-        try {
-            executorService.shutdownNow();
-        } catch (Exception e) {
-            String msg = "shutdown executor service [" + name + "] failed: ";
-            logger.warn(COMMON_UNEXPECTED_EXECUTORS_SHUTDOWN, "", "", msg + e.getMessage(), e);
-        }
-    }
 
     @Override
     public void setExtensionAccessor(ExtensionAccessor extensionAccessor) {
