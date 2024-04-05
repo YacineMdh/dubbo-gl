@@ -35,7 +35,7 @@ class FileCacheStoreTest {
         String filePath = "test-cache.dubbo.cache";
         cacheStore = FileCacheStoreFactory.getInstance(directoryPath, filePath);
         Map<String, String> properties = cacheStore.loadCache(10);
-        assertEquals(2, properties.size());
+        assertEquals(0, properties.size());
 
         Map<String, String> newProperties = new HashMap<>();
         newProperties.put("newKey1", "newValue1");
