@@ -63,9 +63,7 @@ public final class ClassGenerator {
     private Map<String, Method> mCopyMethods; // <method desc,method instance>
     private Map<String, Constructor<?>> mCopyConstructors; // <constructor desc,constructor instance>
     private boolean mDefaultConstructor = false;
-
-    private ClassGenerator() {}
-
+    
     private ClassGenerator(ClassLoader classLoader, ClassPool pool) {
         mClassLoader = classLoader;
         mPool = pool;
