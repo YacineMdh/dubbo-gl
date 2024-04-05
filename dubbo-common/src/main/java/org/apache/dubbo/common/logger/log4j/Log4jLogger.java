@@ -1,109 +1,57 @@
-/*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package org.apache.dubbo.common.logger.log4j;
 
-import org.apache.dubbo.common.logger.Logger;
-import org.apache.dubbo.common.logger.support.FailsafeLogger;
+import org.apache.dubbo.common.logger.AbstractLogger;
+import org.apache.dubbo.common.logger.Level;
 
-import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
-public class Log4jLogger implements Logger {
+public class Log4jLogger extends AbstractLogger {
 
-    private static final String FQCN = FailsafeLogger.class.getName();
+    private final Logger logger;
 
-    private final org.apache.log4j.Logger logger;
-
-    public Log4jLogger(org.apache.log4j.Logger logger) {
+    public Log4jLogger(Logger logger) {
         this.logger = logger;
     }
 
     @Override
-    public void trace(String msg) {
-        logger.log(FQCN, Level.TRACE, msg, null);
-    }
-
-    @Override
-    public void trace(Throwable e) {
-        logger.log(FQCN, Level.TRACE, e == null ? null : e.getMessage(), e);
-    }
-
-    @Override
-    public void trace(String msg, Throwable e) {
-        logger.log(FQCN, Level.TRACE, msg, e);
-    }
-
-    @Override
-    public void debug(String msg) {
-        logger.log(FQCN, Level.DEBUG, msg, null);
-    }
-
-    @Override
-    public void debug(Throwable e) {
-        logger.log(FQCN, Level.DEBUG, e == null ? null : e.getMessage(), e);
-    }
-
-    @Override
-    public void debug(String msg, Throwable e) {
-        logger.log(FQCN, Level.DEBUG, msg, e);
-    }
-
-    @Override
-    public void info(String msg) {
-        logger.log(FQCN, Level.INFO, msg, null);
-    }
-
-    @Override
-    public void info(Throwable e) {
-        logger.log(FQCN, Level.INFO, e == null ? null : e.getMessage(), e);
-    }
-
-    @Override
-    public void info(String msg, Throwable e) {
-        logger.log(FQCN, Level.INFO, msg, e);
-    }
-
-    @Override
-    public void warn(String msg) {
-        logger.log(FQCN, Level.WARN, msg, null);
-    }
-
-    @Override
-    public void warn(Throwable e) {
-        logger.log(FQCN, Level.WARN, e == null ? null : e.getMessage(), e);
-    }
-
-    @Override
-    public void warn(String msg, Throwable e) {
-        logger.log(FQCN, Level.WARN, msg, e);
-    }
-
-    @Override
-    public void error(String msg) {
-        logger.log(FQCN, Level.ERROR, msg, null);
-    }
-
-    @Override
-    public void error(Throwable e) {
-        logger.log(FQCN, Level.ERROR, e == null ? null : e.getMessage(), e);
-    }
-
-    @Override
-    public void error(String msg, Throwable e) {
-        logger.log(FQCN, Level.ERROR, msg, e);
+    protected void log(Level level, String msg, Throwable e) {
+        switch (level) {
+            case TRACE:
+                if (e != null) {
+                    logger.trace(msg, e);
+                } else {
+                    logger.trace(msg);
+                }
+                break;
+            case DEBUG:
+                if (e != null) {
+                    logger.debug(msg, e);
+                } else {
+                    logger.debug(msg);
+                }
+                break;
+            case INFO:
+                if (e != null) {
+                    logger.info(msg, e);
+                } else {
+                    logger.info(msg);
+                }
+                break;
+            case WARN:
+                if (e != null) {
+                    logger.warn(msg, e);
+                } else {
+                    logger.warn(msg);
+                }
+                break;
+            case ERROR:
+                if (e != null) {
+                    logger.error(msg, e);
+                } else {
+                    logger.error(msg);
+                }
+                break;
+        }
     }
 
     @Override
@@ -123,16 +71,11 @@ public class Log4jLogger implements Logger {
 
     @Override
     public boolean isWarnEnabled() {
-        return logger.isEnabledFor(Level.WARN);
+        return logger.isEnabledFor(org.apache.log4j.Level.WARN);
     }
 
     @Override
     public boolean isErrorEnabled() {
-        return logger.isEnabledFor(Level.ERROR);
-    }
-
-    // test purpose only
-    public org.apache.log4j.Logger getLogger() {
-        return logger;
+        return logger.isEnabledFor(org.apache.log4j.Level.ERROR);
     }
 }
