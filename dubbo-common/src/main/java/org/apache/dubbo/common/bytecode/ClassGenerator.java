@@ -63,7 +63,9 @@ public final class ClassGenerator {
     private Map<String, Method> mCopyMethods; // <method desc,method instance>
     private Map<String, Constructor<?>> mCopyConstructors; // <constructor desc,constructor instance>
     private boolean mDefaultConstructor = false;
-    
+
+    private ClassGenerator() {}
+
     private ClassGenerator(ClassLoader classLoader, ClassPool pool) {
         mClassLoader = classLoader;
         mPool = pool;
@@ -301,16 +303,17 @@ public final class ClassGenerator {
     }
 
     public Class<?> toClass(Class<?> neighborClass, ClassLoader loader, ProtectionDomain pd) {
-        if (mCtc != null) {
-            mCtc.detach();
-        }
-        long id = CLASS_NAME_COUNTER.getAndIncrement();
         try {
+            if (mCtc != null) {
+                mCtc.detach();
+            }
+            long id = CLASS_NAME_COUNTER.getAndIncrement();
+
             CtClass ctcs = mSuperClass == null ? null : mPool.get(mSuperClass);
             if (mClassName == null) {
                 mClassName = (mSuperClass == null || javassist.Modifier.isPublic(ctcs.getModifiers())
-                                ? ClassGenerator.class.getName()
-                                : mSuperClass + "$sc")
+                        ? ClassGenerator.class.getName()
+                        : mSuperClass + "$sc")
                         + id;
             }
             mCtc = mPool.makeClass(mClassName);
@@ -368,9 +371,12 @@ public final class ClassGenerator {
         } catch (RuntimeException e) {
             throw e;
         } catch (NotFoundException | CannotCompileException e) {
+            System.err.println("Erreur " + e.getMessage());
+            e.printStackTrace();
             throw new RuntimeException(e.getMessage(), e);
         }
     }
+
 
     public void release() {
         if (mCtc != null) {
