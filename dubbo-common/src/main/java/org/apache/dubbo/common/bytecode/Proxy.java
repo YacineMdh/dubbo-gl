@@ -253,7 +253,4 @@ public class Proxy {
         }
     }
 
-    public Class<?> getClassToCreate() {
-        return classToCreate;
-    }
 }
